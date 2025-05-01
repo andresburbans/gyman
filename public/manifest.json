@@ -1,0 +1,23 @@
+{
+  "name": "LiftBuddy",
+  "short_name": "LiftBuddy",
+  "description": "Track your weightlifting progress",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1E293B", // Corresponds roughly to --background dark (slate-800)
+  "theme_color": "#4F9A94", // Corresponds roughly to --primary dark (dark pastel green)
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+       "purpose": "any maskable"
+    }
+  ]
+}
