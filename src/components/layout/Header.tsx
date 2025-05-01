@@ -9,15 +9,16 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Dumbbell, User, LogOut, LayoutDashboard, LineChart, Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import AuthTriggerButton from '@/components/auth/AuthTriggerButton'; // Import AuthTriggerButton
 
 export default function Header() {
-  const { user, loading, profile } = useAuth();
+  const { user, loading, profile, openAuthModal } = useAuth(); // Get openAuthModal
   const router = useRouter();
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push('/login'); // Redirect to login after sign out
+      router.push('/'); // Redirect to home after sign out
     } catch (error) {
       console.error("Error signing out: ", error);
       // Optionally show a toast notification for the error
@@ -38,7 +39,7 @@ export default function Header() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <Dumbbell className="h-6 w-6 text-primary" />
-          <span className="font-bold sm:inline-block">LiftBuddy</span>
+          <span className="font-bold sm:inline-block">Gyman</span> {/* Updated App Name */}
         </Link>
         <nav className="flex flex-1 items-center space-x-4">
           {user && (
@@ -103,12 +104,13 @@ export default function Header() {
             </DropdownMenu>
           ) : (
              <>
-               <Button variant="outline" size="sm" onClick={() => router.push('/login')}>
+               {/* Replace Button with AuthTriggerButton */}
+               <AuthTriggerButton mode="login" variant="outline" size="sm">
                  Login
-               </Button>
-               <Button size="sm" onClick={() => router.push('/signup')}>
+               </AuthTriggerButton>
+               <AuthTriggerButton mode="signup" size="sm">
                  Sign Up
-               </Button>
+               </AuthTriggerButton>
              </>
           )}
         </div>

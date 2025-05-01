@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/layout/Header'; // Added Header component
+import AuthModal from '@/components/auth/AuthModal'; // Import AuthModal
 
 const inter = Inter({
   subsets: ['latin'],
@@ -12,8 +13,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'LiftBuddy',
-  description: 'Track your weightlifting progress',
+  title: 'Gyman', // Updated title
+  description: 'Gym Analyst: Track your weightlifting progress', // Updated description
   manifest: "/manifest.json", // Add PWA manifest link
 };
 
@@ -35,6 +36,7 @@ export default function RootLayout({
             <Header /> {/* Add Header */}
             <main className="flex-1">{children}</main>
           </div>
+          <AuthModal /> {/* Render AuthModal globally */}
           <Toaster />
         </AuthProvider>
       </body>

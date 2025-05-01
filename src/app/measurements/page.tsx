@@ -21,7 +21,7 @@ type MeasurementInputState = {
 };
 
 export default function MeasurementsPage() {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, openAuthModal } = useAuth(); // Get openAuthModal
   const router = useRouter();
   const { toast } = useToast();
 
@@ -30,12 +30,7 @@ export default function MeasurementsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
-    }
-  }, [authLoading, user, router]);
+  // Redirect check removed, allow viewing but prompt login on action
 
    // Fetch measurement history
   useEffect(() => {
@@ -85,9 +80,16 @@ export default function MeasurementsPage() {
 
   const handleAddMeasurement = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !profile) {
-      toast({ title: 'Error', description: 'You must be logged in and have a profile.', variant: 'destructive' });
-      return;
+    if (!user) {
+       // If not logged in, open the login modal
+       toast({ title: 'Login Required', description: 'Please log in or sign up to save measurements.', variant: 'default' });
+       openAuthModal('login'); // Open login modal
+       return;
+    }
+    if (!profile) {
+        toast({ title: 'Profile Needed', description: 'Please complete your profile before adding measurements.', variant: 'destructive' });
+        router.push('/profile'); // Redirect to profile page
+        return;
     }
      if (Object.keys(measurements).length === 0) {
        toast({ title: 'No Data', description: 'Please enter at least one measurement.', variant: 'destructive' });
@@ -149,7 +151,7 @@ export default function MeasurementsPage() {
   };
 
    const renderHistoryTable = () => {
-    if (loadingHistory) {
+    if (loadingHistory && user) { // Only show skeleton if logged in and loading
       return (
          <div className="space-y-2">
           <Skeleton className="h-10 w-full" />
@@ -157,6 +159,10 @@ export default function MeasurementsPage() {
           <Skeleton className="h-10 w-full" />
          </div>
       );
+    }
+
+    if (!user) {
+        return <p className="text-center text-muted-foreground">Log in to view your measurement history.</p>;
     }
 
     if (measurementHistory.length === 0) {
@@ -196,7 +202,7 @@ export default function MeasurementsPage() {
   };
 
 
-  if (authLoading) {
+  if (authLoading && !user) { // Show skeleton only when initially checking auth state
      return (
        <div className="container mx-auto p-4 md:p-8 space-y-8">
          <Skeleton className="h-64 w-full" />
@@ -204,7 +210,6 @@ export default function MeasurementsPage() {
        </div>
       );
   }
-   if (!user) return null; // Should be redirected
 
 
   return (
@@ -215,7 +220,7 @@ export default function MeasurementsPage() {
                <PlusCircle className="w-6 h-6 text-primary" /> Add New Measurement
             </CardTitle>
             <CardDescription>
-                Enter your current measurements. Only filled fields will be saved for today ({format(new Date(), 'PPP')}). BMI is calculated if height is set in your profile and weight is entered.
+                Enter your current measurements. Only filled fields will be saved for {format(new Date(), 'PPP')}. BMI is calculated if height is set in your profile and weight is entered. Log in to save.
             </CardDescription>
          </CardHeader>
           <form onSubmit={handleAddMeasurement}>
@@ -238,7 +243,7 @@ export default function MeasurementsPage() {
             </CardContent>
              <CardFooter>
                 <Button type="submit" disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Actualizar Avance'}
+                 {isSaving ? 'Saving...' : (user ? 'Save Measurement' : 'Log In to Save')}
                 </Button>
             </CardFooter>
           </form>

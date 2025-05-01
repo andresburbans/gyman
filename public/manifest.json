@@ -1,7 +1,7 @@
 {
-  "name": "LiftBuddy",
-  "short_name": "LiftBuddy",
-  "description": "Track your weightlifting progress",
+  "name": "Gyman",
+  "short_name": "Gyman",
+  "description": "Gym Analyst: Track your weightlifting progress",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1E293B", // Corresponds roughly to --background dark (slate-800)

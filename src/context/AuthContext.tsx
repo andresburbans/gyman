@@ -2,15 +2,22 @@
 // TODO(you): Remove the ts-nocheck comment and fix the type errors. This may require installing new dependencies or fixing type errors in other files.
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc, DocumentData } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, DocumentData } from 'firebase/firestore'; // Import onSnapshot
+
+export type AuthModalView = 'login' | 'signup';
 
 interface AuthContextProps {
   user: User | null;
   loading: boolean;
   profile: UserProfile | null; // Add profile state
+  isAuthModalOpen: boolean;
+  setAuthModalOpen: Dispatch<SetStateAction<boolean>>;
+  authModalView: AuthModalView;
+  setAuthModalView: Dispatch<SetStateAction<AuthModalView>>;
+  openAuthModal: (view?: AuthModalView) => void; // Helper function
 }
 
 // Define UserProfile type based on requirements
@@ -24,7 +31,16 @@ export interface UserProfile {
   height?: number; // In cm
 }
 
-const AuthContext = createContext<AuthContextProps>({ user: null, loading: true, profile: null });
+const AuthContext = createContext<AuthContextProps>({
+  user: null,
+  loading: true,
+  profile: null,
+  isAuthModalOpen: false,
+  setAuthModalOpen: () => {},
+  authModalView: 'login',
+  setAuthModalView: () => {},
+  openAuthModal: () => {},
+});
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -32,6 +48,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalView, setAuthModalView] = useState<AuthModalView>('login');
 
   useEffect(() => {
     // If firebase auth is not initialized, don't attempt to listen
@@ -41,55 +59,83 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setLoading(true);
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      setLoading(true); // Start loading when auth state might change
       setUser(user);
-      if (user && db) { // Check if db is also initialized
-        // Fetch user profile from Firestore
-        try {
-            const profileDocRef = doc(db, 'profiles', user.uid);
-            const profileSnap = await getDoc(profileDocRef);
-            if (profileSnap.exists()) {
-              setProfile({ uid: user.uid, ...profileSnap.data() } as UserProfile);
-            } else {
-              // Handle case where profile might not exist yet (e.g., during initial signup)
-              setProfile({
-                uid: user.uid,
-                email: user.email,
-                displayName: user.displayName,
-                photoURL: user.photoURL,
-              });
-              console.log("User profile not found in Firestore, using auth data.");
-            }
-        } catch (error) {
-             console.error("Error fetching user profile:", error);
-             // Set basic profile from auth if Firestore fails
-              setProfile({
-                uid: user.uid,
-                email: user.email,
-                displayName: user.displayName,
-                photoURL: user.photoURL,
-              });
-        }
-      } else {
-        setProfile(null); // Clear profile on logout or if db is unavailable
+      setLoading(false); // Stop loading after setting user
+      if (!user) {
+          setProfile(null); // Clear profile if user logs out
       }
-      setLoading(false);
+      // Profile fetching will be handled by the profile listener
     });
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []);
+    // Cleanup auth subscription on unmount
+    return () => unsubscribeAuth();
+  }, []); // Run only once on mount
+
+   useEffect(() => {
+      // Fetch profile initially and set up listener
+      let unsubscribeProfile: (() => void) | undefined;
+      if (user && db) {
+          setLoading(true); // Start loading when fetching profile
+          const profileDocRef = doc(db, 'profiles', user.uid);
+          unsubscribeProfile = onSnapshot(profileDocRef, (docSnap) => {
+              if (docSnap.exists()) {
+                  setProfile({ uid: user.uid, ...docSnap.data() } as UserProfile);
+              } else {
+                  // Handle case where profile might not exist yet
+                   // If profile doesn't exist, create a temporary one from auth data
+                   // This might happen briefly during signup before the profile doc is created
+                   setProfile({
+                     uid: user.uid,
+                     email: user.email,
+                     displayName: user.displayName,
+                     photoURL: user.photoURL,
+                   });
+                  console.log("User profile not found in Firestore, using auth data. It might be created shortly.");
+              }
+              setLoading(false); // Stop loading after profile is fetched/updated
+          }, (error) => {
+              console.error("Error fetching/listening to user profile:", error);
+               setProfile({ // Fallback to auth data on error
+                   uid: user.uid,
+                   email: user.email,
+                   displayName: user.displayName,
+                   photoURL: user.photoURL,
+               });
+              setLoading(false); // Stop loading on error
+          });
+      } else {
+           setProfile(null); // Clear profile if no user or db
+           setLoading(false); // Ensure loading is false if no user
+      }
+
+      // Cleanup profile listener on user change or unmount
+      return () => {
+          unsubscribeProfile?.();
+      };
+   }, [user]); // Rerun when user changes
+
+  const openAuthModal = (view: AuthModalView = 'login') => {
+    setAuthModalView(view);
+    setAuthModalOpen(true);
+  };
 
   const value = {
     user,
     loading,
     profile,
+    isAuthModalOpen,
+    setAuthModalOpen,
+    authModalView,
+    setAuthModalView,
+    openAuthModal,
   };
 
   // Render children only if Firebase is initialized or loading is complete
   // This prevents downstream components from breaking if Firebase isn't ready
+  // We check 'auth' which depends on the API key being present
   return <AuthContext.Provider value={value}>
-           {!loading || auth ? children : <div>Loading Firebase...</div>}
+           {auth || !loading ? children : <div>Loading Firebase...</div>}
          </AuthContext.Provider>;
 };

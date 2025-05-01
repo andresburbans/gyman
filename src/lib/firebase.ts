@@ -3,19 +3,9 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 // IMPORTANT: Use environment variables for your Firebase config!
-const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-
-if (!apiKey) {
-    console.error("Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is missing. Please set it in your environment variables.");
-    // Throwing an error might be better to halt execution if Firebase is critical
-    // throw new Error("Firebase API Key (NEXT_PUBLIC_FIREBASE_API_KEY) is missing.");
-}
-
-
 const firebaseConfig = {
-  apiKey: apiKey,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
@@ -29,18 +19,40 @@ let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
 
-// Only initialize if API key is present
-if (apiKey) {
-    if (!getApps().length) {
-      app = initializeApp(firebaseConfig);
-    } else {
-      app = getApp();
-    }
+// Check if Firebase should be initialized (client-side)
+if (typeof window !== 'undefined') {
+  // Check if all required config values are present
+  const requiredConfigKeys: (keyof typeof firebaseConfig)[] = ['apiKey', 'authDomain', 'projectId'];
+  const missingKeys = requiredConfigKeys.filter(key => !firebaseConfig[key]);
 
-    auth = getAuth(app);
-    db = getFirestore(app);
+  if (missingKeys.length > 0) {
+      console.error(`Firebase config is missing or invalid: ${missingKeys.join(', ')}. Please set NEXT_PUBLIC_FIREBASE_* environment variables.`);
+      // Set services to null to prevent errors downstream
+      app = null;
+      auth = null;
+      db = null;
+  } else {
+    try {
+      if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+      } else {
+        app = getApp();
+      }
+
+      auth = getAuth(app);
+      db = getFirestore(app);
+      console.log("Firebase initialized successfully.");
+    } catch (error) {
+        console.error("Error initializing Firebase:", error);
+        // Ensure services are null on error
+        app = null;
+        auth = null;
+        db = null;
+    }
+  }
 } else {
-    console.warn("Firebase not initialized due to missing API key.");
+  // Optional: Server-side initialization if needed (requires different handling)
+  // console.log("Firebase initialization skipped on the server.");
 }
 
 

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import AuthTriggerButton from "@/components/auth/AuthTriggerButton"; // Import the trigger button
 
 export default function Home() {
   return (
@@ -12,19 +13,21 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent-foreground">
-                    Track Your Strength Journey with LiftBuddy
+                    Track Your Strength Journey with Gyman
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
                     Record your body measurements, visualize your progress, and stay motivated on your weightlifting path. Simple, elegant, and effective.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button asChild size="lg">
-                    <Link href="/signup">Get Started</Link>
-                  </Button>
-                  <Button asChild variant="outline" size="lg">
-                    <Link href="/login">Login</Link>
-                  </Button>
+                   {/* Use AuthTriggerButton for signup */}
+                  <AuthTriggerButton mode="signup" size="lg">
+                    Get Started
+                  </AuthTriggerButton>
+                   {/* Use AuthTriggerButton for login */}
+                   <AuthTriggerButton mode="login" variant="outline" size="lg">
+                     Login
+                   </AuthTriggerButton>
                 </div>
               </div>
               <Image
@@ -46,7 +49,7 @@ export default function Home() {
                 <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Key Features</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Everything You Need to Progress</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  LiftBuddy provides the essential tools for tracking your physical changes and visualizing your hard work.
+                  Gyman provides the essential tools for tracking your physical changes and visualizing your hard work.
                 </p>
               </div>
             </div>
@@ -69,7 +72,7 @@ export default function Home() {
               </div>
                <div className="grid gap-1 p-4 rounded-lg border bg-card shadow-sm">
                 <h3 className="text-lg font-bold">Responsive Design</h3>
-                <p className="text-sm text-muted-foreground">Access LiftBuddy seamlessly on your phone, tablet, or laptop.</p>
+                <p className="text-sm text-muted-foreground">Access Gyman seamlessly on your phone, tablet, or laptop.</p>
               </div>
                <div className="grid gap-1 p-4 rounded-lg border bg-card shadow-sm">
                 <h3 className="text-lg font-bold">Motivational Feedback</h3>
@@ -80,7 +83,7 @@ export default function Home() {
         </section>
       </main>
        <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} LiftBuddy. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Gyman. All rights reserved.</p>
         {/* Add footer links if needed */}
       </footer>
     </div>
