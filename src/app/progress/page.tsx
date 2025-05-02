@@ -13,6 +13,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { format } from 'date-fns';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 // Define chart colors based on theme
 const chartColors = {
@@ -48,12 +49,12 @@ export default function ProgressPage() {
     }
   }, [authLoading, user, router]);
 
-   // Fetch measurement history
+  // Fetch measurement history
   useEffect(() => {
     if (!user) {
-        setLoadingHistory(false);
-        setMeasurementHistory([]);
-        return;
+      setLoadingHistory(false);
+      setMeasurementHistory([]);
+      return;
     };
 
     setLoadingHistory(true);
@@ -98,7 +99,7 @@ export default function ProgressPage() {
     }));
   }, [measurementHistory]);
 
-   // Prepare data for chart config
+  // Prepare data for chart config
   const chartConfig = useMemo(() => {
     const config: ChartConfig = {};
     Object.entries(measurementTypes).forEach(([key, { label }]) => {
@@ -107,12 +108,12 @@ export default function ProgressPage() {
         color: chartColors[key as MeasurementType] || "hsl(var(--foreground))", // Fallback color
       };
     });
-     config["bmi"] = { label: "BMI", color: "hsl(var(--chart-1))" }; // Add BMI config
+    config["bmi"] = { label: "BMI", color: "hsl(var(--chart-1))" }; // Add BMI config
     return config;
   }, []);
 
 
-   const getProgressIndicator = (type: MeasurementType | 'bmi') => {
+  const getProgressIndicator = (type: MeasurementType | 'bmi') => {
     if (measurementHistory.length < 2) return null; // Need at least two records
 
     const latestRecord = measurementHistory[measurementHistory.length - 1];
@@ -122,7 +123,7 @@ export default function ProgressPage() {
     const previousValue = type === 'bmi' ? previousRecord.bmi : previousRecord.measurements[type];
 
     if (latestValue === undefined || previousValue === undefined || latestValue === null || previousValue === null) {
-        return <span className="text-xs text-muted-foreground">No data</span>;
+      return <span className="text-xs text-muted-foreground">No data</span>;
     }
 
     const difference = latestValue - previousValue;
@@ -135,8 +136,8 @@ export default function ProgressPage() {
         </span>
       );
     } else if (difference < 0) {
-       // For weight and BMI, decrease is often good, but for measurements it's bad.
-       // We'll stick to red for decrease for now as per req.
+      // For weight and BMI, decrease is often good, but for measurements it's bad.
+      // We'll stick to red for decrease for now as per req.
       return (
         <span className="flex items-center text-xs text-red-500">
           <TrendingDown className="h-3 w-3 mr-1" /> {differenceText} {type !== 'bmi' ? measurementTypes[type as MeasurementType].unit : ''}
@@ -145,19 +146,19 @@ export default function ProgressPage() {
     } else {
       return (
         <span className="flex items-center text-xs text-muted-foreground">
-           <Minus className="h-3 w-3 mr-1" /> 0 - Ánimos! Necesitas crecer
+          <Minus className="h-3 w-3 mr-1" /> 0 - Ánimos! Necesitas crecer
         </span>
       );
     }
   };
 
   const renderChart = (title: string, types: (MeasurementType | 'bmi')[]) => {
-     if (loadingHistory) {
-        return <Skeleton className="h-[350px] w-full" />;
-     }
-     if (chartData.length < 2) {
-         return <p className="text-center text-muted-foreground h-[350px] flex items-center justify-center">Not enough data to display {title.toLowerCase()} chart. Add at least two measurements.</p>;
-     }
+    if (loadingHistory) {
+      return <Skeleton className="h-[350px] w-full" />;
+    }
+    if (chartData.length < 2) {
+      return <p className="text-center text-muted-foreground h-[350px] flex items-center justify-center">Not enough data to display {title.toLowerCase()} chart. Add at least two measurements.</p>;
+    }
 
     const filteredConfig: ChartConfig = {};
     types.forEach(type => {
@@ -166,67 +167,68 @@ export default function ProgressPage() {
       }
     });
 
-     return (
-        <ChartContainer config={filteredConfig} className="min-h-[200px] w-full h-[350px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}> {/* Adjust left margin */}
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-               <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    stroke="hsl(var(--muted-foreground))"
-                    tickMargin={8}
-                    fontSize={12}
-                />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                stroke="hsl(var(--muted-foreground))"
-                tickMargin={8}
-                fontSize={12}
-                // Consider adding domain="auto" or specific domain if needed
-              >
-                  {/* Add Y-axis Label */}
-                 <RechartsLabel
-                   value={title === 'Weight Chart' ? 'Kg' : 'cm / BMI'}
-                   angle={-90}
-                   position="insideLeft"
-                   style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }}
-                   offset={-5} // Adjust offset as needed
-                 />
-              </YAxis>
-              <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
-                />
-              <Legend />
-              {types.map(type => (
-                <Line
-                  key={type}
-                  dataKey={type}
-                  type="monotone"
-                  stroke={chartConfig[type]?.color || "hsl(var(--foreground))"}
-                  strokeWidth={2}
-                  dot={false}
-                  name={chartConfig[type]?.label || type}
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-      );
-   }
+
+    return (
+      <ChartContainer config={filteredConfig} className="min-h-[200px] w-full h-[350px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}> {/* Adjust left margin */}
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              stroke="hsl(var(--muted-foreground))"
+              tickMargin={8}
+              fontSize={12}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              stroke="hsl(var(--muted-foreground))"
+              tickMargin={8}
+              fontSize={12}
+            // Consider adding domain="auto" or specific domain if needed
+            >
+              {/* Add Y-axis Label */}
+              <RechartsLabel
+                value={title === 'Weight Chart' ? 'Kg' : 'cm / BMI'}
+                angle={-90}
+                position="insideLeft"
+                style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }}
+                offset={-5} // Adjust offset as needed
+              />
+            </YAxis>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent indicator="line" />}
+            />
+            <Legend />
+            {types.map(type => (
+              <Line
+                key={type}
+                dataKey={type}
+                type="monotone"
+                stroke={chartConfig[type]?.color || "hsl(var(--foreground))"}
+                strokeWidth={2}
+                dot={false}
+                name={chartConfig[type]?.label || type}
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+    );
+  }
 
   if (authLoading) {
     return (
       <div className="container mx-auto p-4 md:p-8 space-y-8">
-         <Skeleton className="h-12 w-1/3 mb-4" />
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Skeleton className="h-[450px] w-full" />
-            <Skeleton className="h-[450px] w-full" />
-         </div>
-         <Skeleton className="h-48 w-full mt-6" />
+        <Skeleton className="h-12 w-1/3 mb-4" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-[450px] w-full" />
+          <Skeleton className="h-[450px] w-full" />
+        </div>
+        <Skeleton className="h-48 w-full mt-6" />
       </div>
     );
   }
@@ -239,69 +241,72 @@ export default function ProgressPage() {
     <div className="container mx-auto p-4 md:p-8 space-y-8">
       <h1 className="text-3xl font-bold tracking-tight">Your Progress</h1>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <Card className="shadow-md">
-            <CardHeader>
-                <CardTitle>Weight Chart</CardTitle>
-                <CardDescription>Weight (Kg) and BMI over time.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {renderChart("Weight Chart", ['weight', 'bmi'])}
-            </CardContent>
-         </Card>
-
-         <Card className="shadow-md">
-            <CardHeader>
-                <CardTitle>Body Measurements Chart</CardTitle>
-                <CardDescription>Circumference measurements (cm) over time.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {renderChart("Body Measurements Chart", generalMeasurementTypes)}
-            </CardContent>
-         </Card>
-       </div>
-
-
-       <Card className="shadow-md">
-            <CardHeader>
-                <CardTitle>Latest Progress</CardTitle>
-                <CardDescription>Change between your last two measurements.</CardDescription>
-            </CardHeader>
-            <CardContent>
-               {measurementHistory.length < 2 ? (
-                 <p className="text-center text-muted-foreground">Add at least two measurements to see progress indicators.</p>
-               ) : (
-                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                   {/* Weight Indicator */}
-                   <div className="flex flex-col items-center p-3 border rounded-lg bg-card">
-                     <span className="text-sm font-medium">{measurementTypes.weight.label}</span>
-                     <span className="text-lg font-semibold">
-                        {measurementHistory[measurementHistory.length - 1].measurements.weight ?? '-'} {measurementTypes.weight.unit}
-                     </span>
-                     {getProgressIndicator('weight')}
-                   </div>
-                    {/* BMI Indicator */}
-                   <div className="flex flex-col items-center p-3 border rounded-lg bg-card">
-                     <span className="text-sm font-medium">BMI</span>
-                     <span className="text-lg font-semibold">
-                        {measurementHistory[measurementHistory.length - 1].bmi ?? '-'}
-                     </span>
-                     {getProgressIndicator('bmi')}
-                   </div>
-                   {/* Other Measurement Indicators */}
-                   {generalMeasurementTypes.map(type => (
-                     <div key={type} className="flex flex-col items-center p-3 border rounded-lg bg-card">
-                       <span className="text-sm font-medium">{measurementTypes[type].label}</span>
-                       <span className="text-lg font-semibold">
-                         {measurementHistory[measurementHistory.length - 1].measurements[type] ?? '-'} {measurementTypes[type].unit}
-                       </span>
-                       {getProgressIndicator(type)}
-                     </div>
-                   ))}
-                 </div>
-               )}
-            </CardContent>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle>Weight Chart</CardTitle>
+            <CardDescription>Weight (Kg) and BMI over time.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {renderChart("Weight Chart", ['weight', 'bmi'])}
+          </CardContent>
         </Card>
+
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle>Body Measurements Chart</CardTitle>
+            <CardDescription>Circumference measurements (cm) over time.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {renderChart("Body Measurements Chart", generalMeasurementTypes)}
+          </CardContent>
+        </Card>
+      </div>
+
+
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle>Latest Progress</CardTitle>
+          <CardDescription>Change between your last two measurements.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {measurementHistory.length < 2 ? (
+            <p className="text-center text-muted-foreground">Add at least two measurements to see progress indicators.</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {/* Weight Indicator */}
+              <div className="flex flex-col items-center p-3 border rounded-lg bg-card">
+                <span className="text-sm font-medium">{measurementTypes.weight.label}</span>
+                <span className="text-lg font-semibold">
+                  {measurementHistory[measurementHistory.length - 1].measurements.weight ?? '-'} {measurementTypes.weight.unit}
+                </span>
+                {getProgressIndicator('weight')}
+              </div>
+              {/* BMI Indicator */}
+              <div className="flex flex-col items-center p-3 border rounded-lg bg-card">
+                <span className="text-sm font-medium">BMI</span>
+                <span className="text-lg font-semibold">
+                  {measurementHistory[measurementHistory.length - 1].bmi ?? '-'}
+                </span>
+                {getProgressIndicator('bmi')}
+              </div>
+              {/* Other Measurement Indicators */}
+              {generalMeasurementTypes.map(type => (
+                <div key={type} className="flex flex-col items-center p-3 border rounded-lg bg-card">
+                  <span className="text-sm font-medium">{measurementTypes[type].label}</span>
+                  <span className="text-lg font-semibold">
+                    {measurementHistory[measurementHistory.length - 1].measurements[type] ?? '-'} {measurementTypes[type].unit}
+                  </span>
+                  {getProgressIndicator(type)}
+                </div>
+              ))}
+            </div>
+          )}
+          <Button onClick={() => router.push('/measurements')} className="mt-4">
+            Add Measures
+          </Button>
+        </CardContent>
+      </Card>
 
     </div>
   );

@@ -26,11 +26,11 @@ if (typeof window !== 'undefined') {
   const missingKeys = requiredConfigKeys.filter(key => !firebaseConfig[key]);
 
   if (missingKeys.length > 0) {
-      console.error(`Firebase config is missing or invalid: ${missingKeys.join(', ')}. Please set NEXT_PUBLIC_FIREBASE_* environment variables.`);
-      // Set services to null to prevent errors downstream
-      app = null;
-      auth = null;
-      db = null;
+    console.error(`Firebase config is missing or invalid: ${missingKeys.join(', ')}. Please set NEXT_PUBLIC_FIREBASE_* environment variables.`);
+    // Set services to null to prevent errors downstream
+    app = null;
+    auth = null;
+    db = null;
   } else {
     try {
       if (!getApps().length) {
@@ -43,11 +43,11 @@ if (typeof window !== 'undefined') {
       db = getFirestore(app);
       console.log("Firebase initialized successfully.");
     } catch (error) {
-        console.error("Error initializing Firebase:", error);
-        // Ensure services are null on error
-        app = null;
-        auth = null;
-        db = null;
+      console.error("Error initializing Firebase:", error);
+      // Ensure services are null on error
+      app = null;
+      auth = null;
+      db = null;
     }
   }
 } else {

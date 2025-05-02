@@ -20,22 +20,21 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                   {/* Use AuthTriggerButton for signup */}
+                  {/* Use AuthTriggerButton for signup */}
                   <AuthTriggerButton mode="signup" size="lg">
                     Get Started
                   </AuthTriggerButton>
-                   {/* Use AuthTriggerButton for login */}
-                   <AuthTriggerButton mode="login" variant="outline" size="lg">
-                     Login
-                   </AuthTriggerButton>
+                  {/* Use AuthTriggerButton for login */}
+                  <AuthTriggerButton mode="login" variant="outline" size="lg">
+                    Login
+                  </AuthTriggerButton>
                 </div>
               </div>
               <Image
-                src="https://picsum.photos/600/400"
+                src="/icons/static-hero.png" // Ruta de la nueva imagen estática
                 width="600"
                 height="400"
                 alt="Hero"
-                data-ai-hint="weightlifting fitness gym"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square shadow-lg"
               />
             </div>
@@ -66,15 +65,15 @@ export default function Home() {
                 <h3 className="text-lg font-bold">BMI Calculation</h3>
                 <p className="text-sm text-muted-foreground">Automatically calculate your Body Mass Index based on your height and weight.</p>
               </div>
-               <div className="grid gap-1 p-4 rounded-lg border bg-card shadow-sm">
+              <div className="grid gap-1 p-4 rounded-lg border bg-card shadow-sm">
                 <h3 className="text-lg font-bold">Secure Authentication</h3>
                 <p className="text-sm text-muted-foreground">Your data is safe with Firebase Authentication (Google & Email).</p>
               </div>
-               <div className="grid gap-1 p-4 rounded-lg border bg-card shadow-sm">
+              <div className="grid gap-1 p-4 rounded-lg border bg-card shadow-sm">
                 <h3 className="text-lg font-bold">Responsive Design</h3>
                 <p className="text-sm text-muted-foreground">Access Gyman seamlessly on your phone, tablet, or laptop.</p>
               </div>
-               <div className="grid gap-1 p-4 rounded-lg border bg-card shadow-sm">
+              <div className="grid gap-1 p-4 rounded-lg border bg-card shadow-sm">
                 <h3 className="text-lg font-bold">Motivational Feedback</h3>
                 <p className="text-sm text-muted-foreground">Get visual cues (green/red) for positive or negative changes.</p>
               </div>
@@ -82,7 +81,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Gyman. All rights reserved.</p>
         {/* Add footer links if needed */}
       </footer>

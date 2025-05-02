@@ -23,21 +23,26 @@ export default function LoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) {
+      toast({ title: 'Error', description: 'Firebase Auth not initialized.', variant: 'destructive' });
+      return;
+    }
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({ title: 'Login Successful', description: 'Welcome back!' });
-      setAuthModalOpen(false); // Close modal on success
-      router.push('/dashboard'); // Redirect to dashboard
+      setAuthModalOpen(false); // Cierra el modal antes de navegar
+      // Espera un ciclo de render para asegurar cierre visual
+      setTimeout(() => router.push('/measurements'), 100);
     } catch (error: any) {
       console.error('Login error:', error);
       let description = 'An error occurred during login.';
       if (error.code === AuthErrorCodes.INVALID_LOGIN_CREDENTIALS) {
-         description = 'Invalid email or password. Please try again.';
+        description = 'Invalid email or password. Please try again.';
       } else if (error.code === AuthErrorCodes.USER_DELETED) {
-          description = 'This user account has been deleted.';
+        description = 'This user account has been deleted.';
       } else if (error.message) {
-          description = error.message;
+        description = error.message;
       }
       toast({
         title: 'Login Failed',
@@ -50,6 +55,10 @@ export default function LoginForm() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!auth || !db) {
+      toast({ title: 'Error', description: 'Firebase not initialized.', variant: 'destructive' });
+      return;
+    }
     setGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
@@ -61,42 +70,42 @@ export default function LoginForm() {
       const profileSnap = await getDoc(profileDocRef);
 
       if (!profileSnap.exists()) {
-         const newUserProfile: Partial<UserProfile> = {
-           uid: user.uid,
-           email: user.email,
-           displayName: user.displayName,
-           photoURL: user.photoURL,
-           // Initialize other fields as needed, leave optional ones undefined
-         };
+        const newUserProfile: Partial<UserProfile> = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          // Initialize other fields as needed, leave optional ones undefined
+        };
         await setDoc(profileDocRef, newUserProfile, { merge: true }); // Use merge to avoid overwriting
         console.log("New user profile created in Firestore from Google Sign-In.");
         toast({ title: 'Google Sign-In Successful', description: `Welcome, ${user.displayName}! Please complete your profile.` });
-        setAuthModalOpen(false); // Close modal
-        router.push('/profile'); // Redirect new user to profile
+        setAuthModalOpen(false); // Cierra el modal antes de navegar
+        setTimeout(() => router.push('/profile'), 100);
       } else {
-          toast({ title: 'Google Sign-In Successful', description: `Welcome back, ${user.displayName}!` });
-          setAuthModalOpen(false); // Close modal
-          router.push('/dashboard'); // Redirect existing user to dashboard
+        toast({ title: 'Google Sign-In Successful', description: `Welcome back, ${user.displayName}!` });
+        setAuthModalOpen(false); // Cierra el modal antes de navegar
+        setTimeout(() => router.push('/dashboard'), 100);
       }
 
     } catch (error: any) {
       console.error('Google Sign-In error:', error);
       // Handle specific errors like popup closed
-       if (error.code === 'auth/popup-closed-by-user') {
-           toast({
-             title: 'Google Sign-In Cancelled',
-             description: 'You closed the Google Sign-In window.',
-             variant: 'default',
-           });
-       } else if (error.code === 'auth/cancelled-popup-request') {
-            // Ignore this error, it happens if the user clicks the button again quickly
-       } else {
-          toast({
-            title: 'Google Sign-In Failed',
-            description: error.message || 'An error occurred during Google Sign-In.',
-            variant: 'destructive',
-          });
-       }
+      if (error.code === 'auth/popup-closed-by-user') {
+        toast({
+          title: 'Google Sign-In Cancelled',
+          description: 'You closed the Google Sign-In window.',
+          variant: 'default',
+        });
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        // Ignore this error, it happens if the user clicks the button again quickly
+      } else {
+        toast({
+          title: 'Google Sign-In Failed',
+          description: error.message || 'An error occurred during Google Sign-In.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setGoogleLoading(false);
     }
@@ -128,7 +137,7 @@ export default function LoginForm() {
             disabled={loading || googleLoading}
           />
         </div>
-         <Button type="submit" className="w-full" disabled={loading || googleLoading}>
+        <Button type="submit" className="w-full" disabled={loading || googleLoading}>
           {loading ? 'Logging in...' : 'Login'}
         </Button>
       </form>
@@ -151,8 +160,8 @@ export default function LoginForm() {
           </>
         )}
       </Button>
-       {/* Optional: Add forgot password link here */}
-       {/* <div className="text-center text-sm">
+      {/* Optional: Add forgot password link here */}
+      {/* <div className="text-center text-sm">
            <Link href="/forgot-password" // Update if you implement this
                  className="underline text-muted-foreground hover:text-primary">
             Forgot password?
