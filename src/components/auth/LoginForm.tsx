@@ -68,7 +68,7 @@ export default function LoginForm() {
       // Check if profile exists, if not, create one
       const profileDocRef = doc(db, 'profiles', user.uid);
       const profileSnap = await getDoc(profileDocRef);
-
+      // Check if the profile document exists
       if (!profileSnap.exists()) {
         const newUserProfile: Partial<UserProfile> = {
           uid: user.uid,

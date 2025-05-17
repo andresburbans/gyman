@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ChromeIcon } from 'lucide-react';
 import { UserProfile, useAuth } from '@/context/AuthContext'; // Import UserProfile type and useAuth
 
+// Importing the useAuth hook to manage authentication state. 
 export default function SignupForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,6 +34,7 @@ export default function SignupForm() {
   const { toast } = useToast();
   const { setAuthModalOpen } = useAuth(); // Get function to close modal
 
+  // Function to handle the next step in the signup process
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -89,6 +91,7 @@ export default function SignupForm() {
         description: description,
         variant: 'destructive',
       });
+
     } finally {
       setLoading(false);
     }
