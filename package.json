@@ -2,6 +2,7 @@
   "name": "nextn",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
@@ -9,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:populate-test": "node --loader ts-node/esm ./scripts/poblacion-test.ts"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.6.2",
@@ -56,12 +58,14 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^20.17.47",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv": "^16.5.0",
     "genkit-cli": "^1.6.1",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
